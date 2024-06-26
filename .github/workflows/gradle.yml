@@ -13,6 +13,12 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+  AWS_REGION: ap-northeast-2
+  AWS_S3_BUCKET: pixel-hackathon-s3-bucket
+  AWS_CODE_DEPLOY_APPLICATION: PixelHackathon
+  AWS_CODE_DEPLOY_GROUP: PixelHackathonCDGroup
+
 jobs:
   build:
 
@@ -33,11 +39,24 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
 
-    - name: Grant gradlew permission
+    - name: gradlew에 실행 권한 부여
       run: chmod +x ./gradlew
 
     - name: Build with Gradle Wrapper
       run: ./gradlew build --exclude-task test
+
+    - name: AWS credential 설정
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-region: ${{ env.AWS_REGION }}
+        aws-access-key-id: ${{ secrets.CICD_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.CICD_SECRET_KEY }}
+
+    - name: S3에 업로드
+      run: aws deploy push --application-name ${{ env.AWS_CODE_DEPLOY_APPLICATION }} --ignore-hidden-files --s3-location s3://$AWS_S3_BUCKET/cicdtest/$GITHUB_SHA.zip --source .
+
+    - name: EC2에 배포
+      run: aws deploy create-deployment --application-name ${{ env.AWS_CODE_DEPLOY_APPLICATION }} --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name ${{ env.AWS_CODE_DEPLOY_GROUP }} --s3-location bucket=$AWS_S3_BUCKET,key=cicdtest/$GITHUB_SHA.zip,bundleType=zip
 
     # NOTE: The Gradle Wrapper is the default and recommended way to run Gradle (https://docs.gradle.org/current/userguide/gradle_wrapper.html).
     # If your project does not have the Gradle Wrapper configured, you can use the following configuration to run Gradle with a specified version.
