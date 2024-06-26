@@ -43,7 +43,7 @@ jobs:
       run: chmod +x ./gradlew
 
     - name: Build with Gradle Wrapper
-      run: ./gradlew build --exclude-task test
+      run: ./gradlew clean build --exclude-task test
 
     - name: AWS credential 설정
       uses: aws-actions/configure-aws-credentials@v1
