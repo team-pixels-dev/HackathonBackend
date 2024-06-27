@@ -22,7 +22,6 @@ public class OnBoardingController {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
         Iterable<OnboardingGuide> onboardingGuides = onBoardingService.readAllGuide();
-        //return new ResponseEntity<Iterable<OnboardingGuide>>(onboardingGuides, headers, HttpStatus.OK);
         return onboardingGuides;
     }
 
