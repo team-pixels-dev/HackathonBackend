@@ -19,8 +19,6 @@ public class OnBoardingController {
     private final OnBoardingService onBoardingService;
     @GetMapping("/onboarding/guide/all")
     public Iterable<OnboardingGuide> onboardingGuide() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
         Iterable<OnboardingGuide> onboardingGuides = onBoardingService.readAllGuide();
         return onboardingGuides;
     }
